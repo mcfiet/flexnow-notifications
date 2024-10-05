@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - deploy
   pull_request:
     branches:
       - main
@@ -52,11 +51,24 @@ jobs:
             if [ ! $(docker info --format '{{.Swarm.LocalNodeState}}') == "active" ]; then
               docker swarm init
             fi
-            echo "Username: ${{ secrets.APP_USERNAME }}"
-            echo "Password: ${{ secrets.APP_PASSWORD }}"
-            # Secrets erstellen (falls noch nicht vorhanden)
-            echo "${{ secrets.APP_USERNAME }}" | docker secret create APP_USERNAME || true
-            echo "${{ secrets.APP_PASSWORD }}" | docker secret create APP_PASSWORD || true
+
+            # Alte Secrets entfernen, falls sie existieren
+            if [ $(docker secret ls | grep APP_USERNAME) ]; then
+              docker secret rm APP_USERNAME
+            fi
+
+            if [ $(docker secret ls | grep APP_PASSWORD) ]; then
+              docker secret rm APP_PASSWORD
+            fi
+
+            # Neue Secrets erstellen, falls nicht leer
+            if [ -n "${{ secrets.APP_USERNAME }}" ]; then
+              echo "${{ secrets.APP_USERNAME }}" | docker secret create APP_USERNAME
+            fi
+
+            if [ -n "${{ secrets.APP_PASSWORD }}" ]; then
+              echo "${{ secrets.APP_PASSWORD }}" | docker secret create APP_PASSWORD
+            fi
 
             # Starte den neuen Service (anstatt eines einfachen Containers) mit Docker Secrets
             docker service create \
