@@ -35,10 +35,8 @@ jobs:
           script: |
             cd /var/www/flexnow-notifications
 
-            # Baue das Docker-Image basierend auf der Dockerfile im Repository
             docker build --build-arg GIT_REVISION=$(git rev-parse HEAD) -t flexnow-notifications:latest .
 
-            # Stoppe und entferne den laufenden Container, falls er existiert
             if [ $(docker ps -q -f name=flexnow-notifications) ]; then
               docker stop flexnow-notifications
               docker rm flexnow-notifications
