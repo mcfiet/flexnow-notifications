@@ -56,3 +56,20 @@ jobs:
               --restart-condition any \
               --detach=true \
               flexnow-notifications:latest
+
+            if [ $(docker service ls --filter name=flexnow-notifications -q) ]; then
+              docker service update --force \
+                --secret-rm APP_USERNAME \
+                --secret-rm APP_PASSWORD \
+                --secret-add APP_USERNAME \
+                --secret-add APP_PASSWORD \
+                --image flexnow-notifications:latest flexnow-notifications
+            else
+              docker service create \
+                --name flexnow-notifications \
+                --secret APP_USERNAME \
+                --secret APP_PASSWORD \
+                --restart-condition any \
+                --detach=true \
+                flexnow-notifications:latest
+            fi
