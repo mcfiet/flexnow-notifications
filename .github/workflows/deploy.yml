@@ -15,20 +15,22 @@ jobs:
 
     steps:
       # Checkout the code from the repository
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
-      # Copy repository contents to the VPS via SCP
-      - name: Copy repository contents via scp
-        uses: appleboy/scp-action@v0.1.3
+      # Build and push Docker image with secrets
+      - name: Build and push the app image
+        uses: docker/build-push-action@v4
         with:
-          HOST: ${{ secrets.HOST }}
-          USERNAME: ${{ secrets.USERNAME }}
-          PORT: ${{ secrets.PORT }}
-          KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "."
-          target: "/var/www/flexnow-notifications"
+          push: true
+          context: .
+          file: ./path/to/Dockerfile # Pfad zu deinem Dockerfile
+          platforms: linux/amd64
+          tags: my.private.registry.com/my-image:latest
+          secrets: |
+            "APP_USERNAME=${{ secrets.APP_USERNAME }}"
+            "APP_PASSWORD=${{ secrets.APP_PASSWORD }}"
 
-      # Execute remote commands via SSH to build and deploy the Docker container
+      # Connect via SSH to execute additional remote commands
       - name: Executing remote command
         uses: appleboy/ssh-action@master
         with:
@@ -37,30 +39,12 @@ jobs:
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /var/www/flexnow-notifications
+            docker pull my.private.registry.com/my-image:latest
+            docker stop flexnow-notifications || true
+            docker rm flexnow-notifications || true
 
-            # Baue das Docker-Image basierend auf der Dockerfile im Repository
-            docker build --build-arg GIT_REVISION=$(git rev-parse HEAD) -t flexnow-notifications:latest .
-
-            # Stoppe und entferne den laufenden Container, falls er existiert
-            if [ $(docker ps -q -f name=flexnow-notifications) ]; then
-              docker stop flexnow-notifications
-              docker rm flexnow-notifications
-            fi
-
-            # Falls Docker Swarm nicht läuft, initialisiere es
-            if [ ! $(docker info --format '{{.Swarm.LocalNodeState}}') == "active" ]; then
-              docker swarm init
-            fi
-
-            echo -n "dummy_user" | docker secret create APP_USERNAME
-            echo -n "dummy_password" | docker secret create APP_PASSWORD
-
-            # Starte den neuen Service (anstatt eines einfachen Containers) mit Docker Secrets
-            docker service create \
+            # Starte den neuen Container mit den Secrets
+            docker run -d \
               --name flexnow-notifications \
-              --secret APP_USERNAME \
-              --secret APP_PASSWORD \
-              --restart-condition any \
-              --detach=true \
-              flexnow-notifications:latest
+              --restart unless-stopped \
+              my.private.registry.com/my-image:latest
