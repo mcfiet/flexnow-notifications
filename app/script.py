@@ -38,8 +38,6 @@ with open("/run/secrets/APP_USERNAME", "r") as username_file:
 # password = os.environ.get("APP_PASSWORD")
 
 driver.get("https://pm.hs-flensburg.de/FN2AUTH/login.jsp")
-print("Username: ", username)
-print("Passwort: ", password)
 time.sleep(5)
 
 email_input = driver.find_element(By.ID, "kennung")
