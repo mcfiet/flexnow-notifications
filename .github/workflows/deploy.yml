@@ -62,8 +62,8 @@ jobs:
             fi
 
             # Secrets mit den GitHub Secrets erstellen
-            printf -n "${{ secrets.APP_USERNAME }}" | docker secret create APP_USERNAME
-            printf -n "${{ secrets.APP_PASSWORD }}" | docker secret create APP_PASSWORD
+            printf -n "${{ secrets.APP_USERNAME }}" | docker secret create APP_USERNAME -
+            printf -n "${{ secrets.APP_PASSWORD }}" | docker secret create APP_PASSWORD -
 
             # Starte den neuen Service mit Docker Secrets
             docker service create \
