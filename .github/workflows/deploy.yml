@@ -53,29 +53,8 @@ jobs:
               docker swarm init
             fi
 
-            # Alte Secrets entfernen und neue erstellen, falls nicht leer
-
-            # Secret für APP_USERNAME
-            if [ -n "${{ secrets.APP_USERNAME }}" ]; then
-              if [ $(docker secret ls | grep APP_USERNAME) ]; then
-                docker secret rm APP_USERNAME
-              fi
-              echo "test" | docker secret create APP_USERNAME
-            else
-              echo "APP_USERNAME ist leer, Secret wird nicht erstellt."
-              exit 1
-            fi
-
-            # Secret für APP_PASSWORD
-            if [ -n "${{ secrets.APP_PASSWORD }}" ]; then
-              if [ $(docker secret ls | grep APP_PASSWORD) ]; then
-                docker secret rm APP_PASSWORD
-              fi
-              echo "test" | docker secret create APP_PASSWORD
-            else
-              echo "APP_PASSWORD ist leer, Secret wird nicht erstellt."
-              exit 1
-            fi
+            echo -n "dummy_user" | docker secret create APP_USERNAME
+            echo -n "dummy_password" | docker secret create APP_PASSWORD
 
             # Starte den neuen Service (anstatt eines einfachen Containers) mit Docker Secrets
             docker service create \
