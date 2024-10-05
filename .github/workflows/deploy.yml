@@ -60,7 +60,7 @@ jobs:
               if [ $(docker secret ls | grep APP_USERNAME) ]; then
                 docker secret rm APP_USERNAME
               fi
-              echo "${{ secrets.APP_USERNAME }}" | docker secret create APP_USERNAME
+              echo "test" | docker secret create APP_USERNAME
             else
               echo "APP_USERNAME ist leer, Secret wird nicht erstellt."
               exit 1
@@ -71,7 +71,7 @@ jobs:
               if [ $(docker secret ls | grep APP_PASSWORD) ]; then
                 docker secret rm APP_PASSWORD
               fi
-              echo "${{ secrets.APP_PASSWORD }}" | docker secret create APP_PASSWORD
+              echo "test" | docker secret create APP_PASSWORD
             else
               echo "APP_PASSWORD ist leer, Secret wird nicht erstellt."
               exit 1
