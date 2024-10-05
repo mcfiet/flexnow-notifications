@@ -1,0 +1,2 @@
+selenium==4.0.0  # oder die neueste Version von Selenium
+webdriver-manager
