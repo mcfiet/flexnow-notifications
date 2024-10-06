@@ -92,6 +92,8 @@ if widerspruch.is_displayed():
                     "modulNote": modulNote,
                 }
             )
+            with open(file_path, "w") as file:
+                file.write(f"{modulNummer}\n")
 
         elif not modulWasAlreadyInList:
             print("Kein Modul gefunden.")
