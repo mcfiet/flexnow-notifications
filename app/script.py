@@ -72,7 +72,11 @@ if widerspruch.is_displayed():
 
         modulNummer = int(re.search(modulNummerPattern, text).group())
         modulName = re.search(modulNamePattern, text).group(1)
-        modulNote = re.search(modulNotePattern, textNote).group(1)
+        modulNote = (
+            re.search(modulNotePattern, textNote).group(1)
+            if re.search(modulNotePattern, textNote)
+            else textNote
+        )
         print(modulNummer, modulName)
 
         for alteModulNummer in alteModuleNummern:
